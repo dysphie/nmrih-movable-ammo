@@ -10,10 +10,6 @@
 #define PLUGIN_DESCRIPTION "Allows ammo to be transported when it doesn't fit in a player's inventory"
 #define PLUGIN_VERSION "1.0.0"
 
-Handle fnPickupControllerInit;
-bool   g_LateLoaded;
-ConVar cvEnabled;
-
 public Plugin myinfo =
 {
 	name        = "Movable Ammo",
@@ -22,6 +18,15 @@ public Plugin myinfo =
 	version     = PLUGIN_VERSION,
 	url         = "https://github.com/dysphie/nmrih-movable-ammo"
 };
+
+Handle fnPickupControllerInit;
+bool   g_LateLoaded;
+ConVar cvEnabled;
+ConVar cvCooldown;
+
+#define NMR_MAXPLAYERS 9
+
+float nextPickupTime[NMR_MAXPLAYERS+1];
 
 public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max)
 {
@@ -61,6 +66,7 @@ void SetupSDKCalls()
 void RegisterConvars()
 {
 	cvEnabled = CreateConVar("sv_movable_ammo", "1", "Whether ammo boxes can be carried like physics props");
+	cvCooldown = CreateConVar("sv_movable_ammo_pickup_delay", "1", "Seconds that must pass after a player becomes full before we attempt to lift the ammo");
 
 	CreateConVar("movable_ammo_version", PLUGIN_VERSION, PLUGIN_DESCRIPTION,
     	FCVAR_SPONLY|FCVAR_NOTIFY|FCVAR_DONTRECORD);
@@ -96,8 +102,23 @@ void OnAmmoBoxCreated(int ammobox)
 
 Action OnAmmoBoxUse(int ammobox, int activator, int caller, UseType type, float value)
 {
-	if (!cvEnabled.BoolValue || !IsPlayer(activator) || HasInventorySpace(activator))
+	if (!cvEnabled.BoolValue || !IsPlayer(activator))
 	{
+		return Plugin_Continue;
+	}
+
+	// On cooldown
+	float curTime = GetGameTime();
+	if (curTime < nextPickupTime[activator])
+	{
+		return Plugin_Continue;
+	}
+
+	if (HasInventorySpace(activator))
+	{
+		// Player successfully picked up the ammo, set a cooldown on our next pickup so that
+		// players can freely spam +use on ammo without immediately picking up the leftovers
+		nextPickupTime[activator] = curTime + cvCooldown.FloatValue;
 		return Plugin_Continue;
 	}
 
