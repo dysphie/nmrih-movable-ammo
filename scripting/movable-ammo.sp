@@ -6,9 +6,8 @@
 #include <vscript_proxy>
 
 #define GAMEDATA_FILE "movable-ammo.games"
-#define GAMEDATA_FUNC "CPlayerPickupController::Init"
 #define PLUGIN_DESCRIPTION "Allows ammo to be transported when it doesn't fit in a player's inventory"
-#define PLUGIN_VERSION "1.0.1"
+#define PLUGIN_VERSION "1.0.2"
 
 public Plugin myinfo =
 {
@@ -20,6 +19,7 @@ public Plugin myinfo =
 };
 
 Handle fnPickupControllerInit;
+Handle fnAmmoBoxFallInit;
 bool   g_LateLoaded;
 ConVar cvEnabled;
 ConVar cvCooldown;
@@ -50,14 +50,21 @@ void SetupSDKCalls()
 	}
 
 	StartPrepSDKCall(SDKCall_Entity);
-	PrepSDKCall_SetFromConf(gamedata, SDKConf_Signature, GAMEDATA_FUNC);
+	PrepSDKCall_SetFromConf(gamedata, SDKConf_Signature, "CPlayerPickupController::Init");
 	PrepSDKCall_AddParameter(SDKType_CBasePlayer, SDKPass_Pointer);
 	PrepSDKCall_AddParameter(SDKType_CBaseEntity, SDKPass_Pointer);
 	fnPickupControllerInit = EndPrepSDKCall();
-
 	if (!fnPickupControllerInit)
 	{
-		SetFailState("Failed to set up SDKCall for " ... GAMEDATA_FUNC);
+		SetFailState("Failed to set up SDKCall for CPlayerPickupController::Init");
+	}
+
+	StartPrepSDKCall(SDKCall_Entity);
+	PrepSDKCall_SetFromConf(gamedata, SDKConf_Signature, "CItem_AmmoBox::FallInit");
+	fnAmmoBoxFallInit = EndPrepSDKCall();
+	if (!fnAmmoBoxFallInit)
+	{
+		SetFailState("Failed to set up SDKCall for CItem_AmmoBox::FallInit");
 	}
 	
 	delete gamedata;
@@ -66,7 +73,7 @@ void SetupSDKCalls()
 void RegisterConvars()
 {
 	cvEnabled = CreateConVar("sv_movable_ammo", "1", "Whether ammo boxes can be carried like physics props");
-	cvCooldown = CreateConVar("sv_movable_ammo_pickup_delay", "1", "Seconds that must pass after a player becomes full before we attempt to lift the ammo");
+	cvCooldown = CreateConVar("sv_movable_ammo_pickup_delay", "0.4", "Seconds that must pass after a player becomes full before we attempt to lift the ammo");
 
 	CreateConVar("movable_ammo_version", PLUGIN_VERSION, PLUGIN_DESCRIPTION,
     	FCVAR_SPONLY|FCVAR_NOTIFY|FCVAR_DONTRECORD);
@@ -102,7 +109,7 @@ void OnAmmoBoxCreated(int ammobox)
 
 Action OnAmmoBoxUse(int ammobox, int activator, int caller, UseType type, float value)
 {
-	if (!cvEnabled.BoolValue || !IsPlayer(activator))
+	if (!cvEnabled.BoolValue || !IsPlayer(activator) || !IsValidEntity(ammobox))
 	{
 		return Plugin_Continue;
 	}
@@ -121,6 +128,9 @@ Action OnAmmoBoxUse(int ammobox, int activator, int caller, UseType type, float 
 		nextPickupTime[activator] = curTime + cvCooldown.FloatValue;
 		return Plugin_Continue;
 	}
+
+	// We need to make sure the ammobox has physics, else we crash!
+	SDKCall(fnAmmoBoxFallInit, ammobox);
 
 	int pickup = CreateEntityByName("player_pickup");
 	if (pickup == -1 || !DispatchSpawn(pickup))
