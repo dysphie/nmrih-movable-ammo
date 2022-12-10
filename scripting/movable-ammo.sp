@@ -8,7 +8,7 @@
 #define GAMEDATA_FILE "movable-ammo.games"
 #define GAMEDATA_FUNC "CPlayerPickupController::Init"
 #define PLUGIN_DESCRIPTION "Allows ammo to be transported when it doesn't fit in a player's inventory"
-#define PLUGIN_VERSION "1.0.0"
+#define PLUGIN_VERSION "1.0.1"
 
 public Plugin myinfo =
 {
