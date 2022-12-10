@@ -73,7 +73,7 @@ void SetupSDKCalls()
 void RegisterConvars()
 {
 	cvEnabled = CreateConVar("sv_movable_ammo", "1", "Whether ammo boxes can be carried like physics props");
-	cvCooldown = CreateConVar("sv_movable_ammo_pickup_delay", "0.4", "Seconds that must pass after a player becomes full before we attempt to lift the ammo");
+	cvCooldown = CreateConVar("sv_movable_ammo_pickup_delay", "2.5", "Seconds that must pass after a player becomes full before we attempt to lift the ammo");
 
 	CreateConVar("movable_ammo_version", PLUGIN_VERSION, PLUGIN_DESCRIPTION,
     	FCVAR_SPONLY|FCVAR_NOTIFY|FCVAR_DONTRECORD);
