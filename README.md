@@ -1,5 +1,5 @@
 # [NMRiH] Movable Ammo
-Allows ammo to be moved like physics props when it doesn't fit in a player's inventory
+Allows players to lift ammo when it doesn't fit in their inventories
 
 
 
