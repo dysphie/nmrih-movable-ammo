@@ -64,6 +64,8 @@ void RegisterConvars()
 
 	CreateConVar("movable_ammo_version", PLUGIN_VERSION, PLUGIN_DESCRIPTION,
     	FCVAR_SPONLY|FCVAR_NOTIFY|FCVAR_DONTRECORD);
+
+	AutoExecConfig(true, "movable-ammo");
 }
 
 void CheckLateload()
