@@ -1,6 +1,7 @@
 # [NMRiH] Movable Ammo
 Allows players to lift ammo when it doesn't fit in their inventories
 
+[AlliedModders thread](https://forums.alliedmods.net/showthread.php?t=340795)
 
 
 https://user-images.githubusercontent.com/11559683/206853984-b2cfad32-fe23-4625-9017-c5b65610fe35.mp4
