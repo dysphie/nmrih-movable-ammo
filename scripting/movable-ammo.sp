@@ -7,7 +7,7 @@
 
 #define GAMEDATA_FILE "movable-ammo.games"
 #define PLUGIN_DESCRIPTION "Allows ammo to be transported when it doesn't fit in a player's inventory"
-#define PLUGIN_VERSION "1.0.2"
+#define PLUGIN_VERSION "1.0.3"
 
 public Plugin myinfo =
 {
@@ -26,7 +26,7 @@ ConVar cvCooldown;
 
 #define NMR_MAXPLAYERS 9
 
-float nextPickupTime[NMR_MAXPLAYERS+1];
+float g_NextPickupTime[NMR_MAXPLAYERS+1];
 
 public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max)
 {
@@ -116,7 +116,7 @@ Action OnAmmoBoxUse(int ammobox, int activator, int caller, UseType type, float 
 
 	// On cooldown
 	float curTime = GetGameTime();
-	if (curTime < nextPickupTime[activator])
+	if (curTime < g_NextPickupTime[activator])
 	{
 		return Plugin_Continue;
 	}
@@ -125,7 +125,7 @@ Action OnAmmoBoxUse(int ammobox, int activator, int caller, UseType type, float 
 	{
 		// Player successfully picked up the ammo, set a cooldown on our next pickup so that
 		// players can freely spam +use on ammo without immediately picking up the leftovers
-		nextPickupTime[activator] = curTime + cvCooldown.FloatValue;
+		g_NextPickupTime[activator] = curTime + cvCooldown.FloatValue;
 		return Plugin_Continue;
 	}
 
@@ -151,4 +151,9 @@ bool IsPlayer(int entity)
 bool HasInventorySpace(int client)
 {
 	return RunEntVScriptBool(client, "HasLeftoverWeight(1)");
+}
+
+public void OnClientDisconnect(int client)
+{
+	g_NextPickupTime[client] = 0.0;
 }
