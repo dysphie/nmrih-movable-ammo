@@ -19,7 +19,7 @@ ConVars are saved to `cfg/sourcemod/movable-ammo.cfg`
 
 - `sv_movable_ammo` (1/0) (Default: 1) - Toggles movable ammo
 
-- `sv_movable_ammo_pickup_delay` (Default: 1.0) - Seconds that must pass after a player becomes full before we attempt to lift ammo (avoids accidental pickups when spamming `+use`)
+- `sv_movable_ammo_pickup_delay` (Default: 2.5) - Seconds that must pass after a player becomes full before we attempt to lift ammo (avoids accidental pickups when spamming `+use`)
 
 ## Compiling
 
