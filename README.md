@@ -1,3 +1,5 @@
+> ⚠️ As of [NMRiH 1.13.3](https://steamcommunity.com/app/224260/eventcomments/3805031898642935458), this plugin is no longer maintained or necessary. The update adds this feature.
+
 # [NMRiH] Movable Ammo
 Allows players to lift ammo when it doesn't fit in their inventories
 
